@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         MY_HOME = '~/My_HOME'
-        // PATH = '/usr/local/bin' 
+        PATH = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' 
         MY_STRING = 'hello world!'
     }
     stages {
@@ -10,11 +10,10 @@ pipeline {
             steps {
                 echo "${MY_STRING}"
                 echo "${MY_HOME}"
-                env.PATH = '/usr/local/bin:'.concat(env.PATH)
                 echo env.PATH
                 sh 'env'
-                sh 'export PATH=/usr/local/bin:$PATH; python --version'
-                sh 'export PATH=/usr/local/bin:$PATH; git --version'
+                sh 'python --version'
+                sh 'git --version'
             }
         }
         stage('pull code') {
