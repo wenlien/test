@@ -10,7 +10,7 @@ pipeline {
             steps {
                 echo "${MY_STRING}"
                 echo "${MY_HOME}"
-                // env.PATH = '/usr/local/bin:' + env.PATH
+                env.PATH = '/usr/local/bin:'.concat(env.PATH)
                 echo env.PATH
                 sh 'env'
                 sh 'export PATH=/usr/local/bin:$PATH; python --version'
