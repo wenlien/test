@@ -18,7 +18,7 @@ pipeline {
         stage('pull code') {
             steps {
                 // git url: 'git@github.com:wenlien/test.git'
-                sh 'TBD'
+                echo 'TBD'
             }
         }
     }
