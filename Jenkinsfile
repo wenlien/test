@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         MY_HOME = '~/My_HOME'
-        PATH = '/usr/local/bin'
+        // PATH = '/usr/local/bin' 
         MY_STRING = 'hello world!'
     }
     stages {
@@ -10,6 +10,7 @@ pipeline {
             steps {
                 echo "${MY_STRING}"
                 echo "${MY_HOME}"
+                env.PATH = '/usr/local/bin:' + env.PATH
                 sh 'env'
                 sh 'export PATH=/usr/local/bin:$PATH; python --version'
                 sh 'export PATH=/usr/local/bin:$PATH; git --version'
