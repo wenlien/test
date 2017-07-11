@@ -10,23 +10,23 @@ pipeline {
         stage('check environment') {
             steps {
                 echo "${MY_STRING}"
-            }
-            steps {
                 echo "${MY_HOME}"
-            }
-            steps {
                 echo env.PATH
                 sh 'env'
-            }
-            steps {
                 sh 'python --version'
                 sh 'git --version'
             }
         }
-        stage('pull code') {
-            steps {
-                // git url: 'git@github.com:wenlien/test.git'
-                echo 'TBD'
+        // stage('pull code') {
+        //    steps {
+        //        git url: 'git@github.com:wenlien/test.git'
+        //    }
+        // }
+        stage('retry-timeout') {
+            retry (3) {
+                timeout(time: 3, unit: 'SECONDS') {
+                    sh 'sleep 10'
+                }
             }
         }
     }
