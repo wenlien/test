@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         MY_HOME = '~/My_HOME'
-        PATH = '/usr/local/bin:' + PATH
+        PATH = '/usr/local/bin'
         MY_STRING = 'hello world!'
     }
     stages {
