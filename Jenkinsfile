@@ -23,8 +23,8 @@ pipeline {
         //    }
         // }
         stage('retry-timeout') {
-            retry (3) {
-                timeout(time: 3, unit: 'SECONDS') {
+            timeout(time: 3, unit: 'SECONDS') {
+                retry (3) {
                     sh 'sleep 10'
                 }
             }
