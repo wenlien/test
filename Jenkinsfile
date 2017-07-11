@@ -10,9 +10,15 @@ pipeline {
         stage('check environment') {
             steps {
                 echo "${MY_STRING}"
+            }
+            steps {
                 echo "${MY_HOME}"
+            }
+            steps {
                 echo env.PATH
                 sh 'env'
+            }
+            steps {
                 sh 'python --version'
                 sh 'git --version'
             }
