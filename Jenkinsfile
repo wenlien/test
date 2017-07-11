@@ -23,12 +23,13 @@ pipeline {
         //    }
         // }
         stage('retry-timeout') {
-            // timeout(time: 3, unit: 'SECONDS') {
-            //    retry (3) {
-            //        sh 'sleep 10'
-            //    }
-            //}
-            sh 'sleep 10'
+            steps {
+                timeout(time: 3, unit: 'SECONDS') {
+                    retry (3) {
+                        sh 'sleep 10'
+                    }
+                }
+            }    
         }
     }
     post {
