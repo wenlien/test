@@ -24,9 +24,9 @@ pipeline {
         // }
         stage('retry-timeout') {
             steps {
-                timeout(time: 3, unit: 'SECONDS') {
+                timeout(time: 1, unit: 'SECONDS') {
                     retry (3) {
-                        sh 'sleep 10'
+                        sh 'sleep 3'
                     }
                 }
             }    
