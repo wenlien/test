@@ -53,8 +53,10 @@ pipeline {
             }
         }
         stage('test-with') {
-            withEnv(['TEST_FLAG=true']) {
-                echo "TEST_FLAG="env.TEST_FLAG
+            steps {
+                withEnv(['TEST_FLAG=true']) {
+                    echo "TEST_FLAG="env.TEST_FLAG
+                }
             }
         }
         stage('end') {
