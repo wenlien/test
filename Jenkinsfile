@@ -40,11 +40,11 @@ pipeline {
                     },
                     mac: {
                         echo 'mac'
-                        sh 'sleep 5'
+                        sh 'sleep 10'
                     },
                     windows: {
                         echo 'windows'
-                        sh 'sleep 10'
+                        sh 'sleep 5'
                     },
                     failFast: false
                 )
