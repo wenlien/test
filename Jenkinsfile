@@ -64,11 +64,11 @@ pipeline {
         }
         success {
             // mail to: env.EMAIL_TO, subject: "SUCCESS: ${currentBuild.fullDisplayName}", body: env.PASS_MESSAGE
-            echo "SUCCESS"
+            echo env.PASS_MESSAGE
         }
         failure {
             // mail to: env.EMAIL_TO, subject: "FAILURE: ${currentBuild.fullDisplayName}", body: env.FAIL_MESSAGE
-            echo "FAILURE"
+            echo env.FAIL_MESSAGE
         }
     }
 }
