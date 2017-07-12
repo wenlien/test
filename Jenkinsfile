@@ -24,9 +24,9 @@ pipeline {
         // }
         stage('retry-timeout') {
             steps {
-                timeout(time: 1, unit: 'SECONDS') {
+                timeout(time: 3, unit: 'SECONDS') {
                     retry (3) {
-                        sh 'sleep 3'
+                        sh 'sleep 1'
                     }
                 }
             }    
@@ -37,10 +37,12 @@ pipeline {
             deleteDir()
         }
         success {
-            mail to: env.EMAIL_TO, subject: "SUCCESS: ${currentBuild.fullDisplayName}", body: "Yay, we passed."
+            // mail to: env.EMAIL_TO, subject: "SUCCESS: ${currentBuild.fullDisplayName}", body: "Yay, we passed."
+            echo "SUCCESS"
         }
         failure {
-            mail to: env.EMAIL_TO, subject: "FAILURE: ${currentBuild.fullDisplayName}", body: "Boo, we failed."
+            // mail to: env.EMAIL_TO, subject: "FAILURE: ${currentBuild.fullDisplayName}", body: "Boo, we failed."
+            echo "FAILURE"
         }
     }
 }
