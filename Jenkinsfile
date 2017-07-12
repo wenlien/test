@@ -50,6 +50,11 @@ pipeline {
                 )
             }
         }
+        stage('end') {
+            steps {
+                echo 'end!'
+            }
+        }
     }
     post {
         always() {
