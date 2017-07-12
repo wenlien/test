@@ -54,8 +54,8 @@ pipeline {
         }
         stage('get result from shell') {
             steps {
-                echo $(date +%Y-%m-%d)
-                def s=$(date +%Y-%m-%d)
+                echo $(date '+%Y-%m-%d')
+                def s=$(date '+%Y-%m-%d')
                 echo s
                 // echo CUR_DATE=$(date +%Y-%m-%d) > env.properties
                 // echo env.CUR_DATE
