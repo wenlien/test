@@ -5,6 +5,8 @@ pipeline {
         PATH = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' 
         MY_STRING = 'hello world!'
         EMAIL_TO = 'wenlien1001@gmail.com'
+        PASS_MESSAGE = 'Yay, we passed.'
+        FAIL_MESSAGE = 'Boo, we failed.'
     }
     stages {
         stage('check environment') {
@@ -61,11 +63,11 @@ pipeline {
             deleteDir()
         }
         success {
-            // mail to: env.EMAIL_TO, subject: "SUCCESS: ${currentBuild.fullDisplayName}", body: "Yay, we passed."
+            // mail to: env.EMAIL_TO, subject: "SUCCESS: ${currentBuild.fullDisplayName}", body: env.PASS_MESSAGE
             echo "SUCCESS"
         }
         failure {
-            // mail to: env.EMAIL_TO, subject: "FAILURE: ${currentBuild.fullDisplayName}", body: "Boo, we failed."
+            // mail to: env.EMAIL_TO, subject: "FAILURE: ${currentBuild.fullDisplayName}", body: env.FAIL_MESSAGE
             echo "FAILURE"
         }
     }
