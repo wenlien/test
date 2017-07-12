@@ -52,6 +52,12 @@ pipeline {
                 )
             }
         }
+        stage('get result from shell') {
+            steps {
+                echo CUR_DATE=$(date +%Y-%m-%d) > env.properties
+                echo env.CUR_DATE
+            }
+        }
         stage('end') {
             steps {
                 echo 'end!'
