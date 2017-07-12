@@ -31,6 +31,25 @@ pipeline {
                 }
             }    
         }
+        stage('try-parallel') {
+            steps {
+                parallel (
+                    linux: {
+                        echo 'linux'
+                        sh 'sleep 1'
+                    },
+                    mac: {
+                        echo 'mac'
+                        sh 'sleep 5'
+                    },
+                    windows: {
+                        echo 'windows'
+                        sh 'sleep 10'
+                    },
+                    failFast: false
+                )
+            }
+        }
     }
     post {
         always() {
