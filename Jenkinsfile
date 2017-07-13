@@ -23,6 +23,7 @@ pipeline {
                         returnStdout: true
                 )
                 }
+                env.vv = version
                 // echo version
             }
         }
@@ -83,6 +84,7 @@ pipeline {
                 // }
                 // not working
                 echo version
+                echo env.vv
             }
         }
         stage('end') {
