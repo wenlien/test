@@ -1,109 +1,66 @@
-pipeline {
-    agent any
-    environment {
-        MY_HOME = '~/My_HOME'
-        PATH = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-        MY_STRING = 'hello world!'
-        EMAIL_TO = 'wenlien1001@gmail.com'
-        PASS_MESSAGE = 'Yay, we passed.'
-        FAIL_MESSAGE = 'Boo, we failed.'
+#!/usr/bin/env groovy
+import groovy.json.JsonSlurper;
+
+
+
+node {
+    stage('Checking Environment') {
+        env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
+        sh 'env'
+        sh 'python3 --version'
+        sh 'git --version'
+        sh 'php --version'
     }
-    stages {
-        stage('check environment') {
-            steps {
-                echo "${MY_STRING}"
-                echo "${MY_HOME}"
-                echo env.PATH
-                sh 'env'
-                sh 'python --version'
-                sh 'git --version'
-                script {
-                    version = sh (
-                        script: "id",
-                        returnStdout: true
-                )
-                }
-                env.vv = version
-                // echo version
-            }
-        }
-        // stage('pull code') {
-        //    steps {
-        //        git url: 'git@github.com:wenlien/test.git'
-        //    }
-        // }
-        stage('retry-timeout') {
-            steps {
-                timeout(time: 3, unit: 'SECONDS') {
-                    retry (3) {
-                        sh 'sleep 1'
+    stage('Init Environment') {
+        juvo_config_replacement()
+    }
+    stage('Run Regression Testing') {
+        try {
+            parallel (
+                    "Gating": {
+                        node('Gating') {
+                            // sh 'php ./DailyReport.php -m -p -e -l 3000 -b'
+                            sh 'echo Gating'
+                        }
+                    },
+                    "Gating-Candidate": {
+                        node('Gating-Candidate') {
+                            sh 'echo Gating-Candidate'
+                        }
+                    },
+                    "Non-Gating": {
+                        node('Non-Gating') {
+                            sh 'echo Non-Gating'
+                        }
                     }
-                }
-            }
+            )
         }
-        stage('try-parallel') {
-            steps {
-                parallel (
-                    linux: {
-                        echo 'linux'
-                        sh 'sleep 1'
-                    },
-                    mac: {
-                        echo 'mac'
-                        sh 'sleep 10'
-                    },
-                    windows: {
-                        echo 'windows'
-                        sh 'sleep 5'
-                    },
-                    failFast: false
-                )
-            }
+        catch(error) {
+            throw error
         }
-        stage('get result from shell') {
-            steps {
-                // echo $(date '+%Y-%m-%d')
-                // s = sh (script:'date "+%Y-%m-%d"', returnStdout: true).trim()
-                // gitCommit = sh(returnStdout: true, script: 'git --help').trim()
-                // echo gitCommit
-                // echo CUR_DATE=$(date +%Y-%m-%d) > env.properties
-                // echo env.CUR_DATE
-                // echo 'hello world!'
-                // echo 'TBD'
-                // try {
-                //     def version = sh (
-                //             script: "echo 1",
-                //             returnStdout: true
-                //     )
-                //     println(version)
-                //     if (version.toInteger() == 1) {
-                //         same_version = true
-                //     }
-                // } catch (error) {
-                //     // do nothing
-                // }
-                // not working
-                echo version
-                echo env.vv
-            }
-        }
-        stage('end') {
-            steps {
-                echo 'end!'
-            }
+        finally {
+            TESTING_SUCCESSED = True
         }
     }
-    post {
-        always() {
-            deleteDir()
-        }
-        success {
-            // mail to: env.EMAIL_TO, subject: "SUCCESS: ${currentBuild.fullDisplayName}", body: env.PASS_MESSAGE
-            echo env.PASS_MESSAGE
-        }
-        failure {
-            // mail to: env.EMAIL_TO, subject: "FAILURE: ${currentBuild.fullDisplayName}", body: env.FAIL_MESSAGE
-            echo env.FAIL_MESSAGE
+    stage('Deployment') {
+        if (TESTING_SUCCESSED) {
+            sh 'echo Deployment'
         }
     }
+    stage('Email') {
+        if (TESTING_SUCCESSED) {
+            sh 'echo Successed!'
+        }
+        else {
+            sh 'echo Failure!'
+        }
+    }
+}
+
+
+def juvo_config_replacement() {
+    String juvo_config_path = '~/.juvoconfig';
+    juvo_config_path = env.HOME + juvo_config_path.substring(1);
+    sh 'cp ' + juvo_config_path + '.orig ' + juvo_config_path
+    sh 'python -c \'import json; j=json.load(open("' + juvo_config_path +'", "r")); j["db"]["host"]="10.0.0.156"; json.dump(j, open("' + juvo_config_path + '", "w"), indent=True)\';'
 }
