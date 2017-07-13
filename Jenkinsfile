@@ -4,12 +4,15 @@ import groovy.json.JsonSlurper;
 
 
 node {
+    env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
     stage('Checking Environment') {
-        env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
-        sh 'env'
+        // sh 'env'
         sh 'python3 --version'
         sh 'git --version'
         sh 'php --version'
+    }
+    state('test') {
+        sh 'env'
     }
     stage('Init Environment') {
         juvo_config_replacement()
