@@ -4,58 +4,60 @@ import groovy.json.JsonSlurper;
 
 
 node {
-    env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
-    stage('Checking Environment') {
-        // sh 'env'
-        sh 'python3 --version'
-        sh 'git --version'
-        sh 'php --version'
-    }
-    state('test') {
-        sh 'env'
-    }
-    stage('Init Environment') {
-        juvo_config_replacement()
-    }
-    stage('Run Regression Testing') {
-        try {
-            parallel (
-                    "Gating": {
-                        node('Gating') {
-                            // sh 'php ./DailyReport.php -m -p -e -l 3000 -b'
-                            sh 'echo Gating'
+    withEnv(['PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin']) {
+        stage('Checking Environment') {
+            // sh 'env'
+            sh 'python3 --version'
+            sh 'git --version'
+            sh 'php --version'
+        }
+        state('test') {
+            sh 'env'
+            sh 'python3 --version'
+        }
+        stage('Init Environment') {
+            juvo_config_replacement()
+        }
+        stage('Run Regression Testing') {
+            try {
+                parallel (
+                        "Gating": {
+                            node('Gating') {
+                                // sh 'php ./DailyReport.php -m -p -e -l 3000 -b'
+                                sh 'echo Gating'
+                            }
+                        },
+                        "Gating-Candidate": {
+                            node('Gating-Candidate') {
+                                sh 'echo Gating-Candidate'
+                            }
+                        },
+                        "Non-Gating": {
+                            node('Non-Gating') {
+                                sh 'echo Non-Gating'
+                            }
                         }
-                    },
-                    "Gating-Candidate": {
-                        node('Gating-Candidate') {
-                            sh 'echo Gating-Candidate'
-                        }
-                    },
-                    "Non-Gating": {
-                        node('Non-Gating') {
-                            sh 'echo Non-Gating'
-                        }
-                    }
-            )
+                )
+            }
+            catch(error) {
+                throw error
+            }
+            finally {
+                TESTING_SUCCESSED = True
+            }
         }
-        catch(error) {
-            throw error
+        stage('Deployment') {
+            if (TESTING_SUCCESSED) {
+                sh 'echo Deployment'
+            }
         }
-        finally {
-            TESTING_SUCCESSED = True
-        }
-    }
-    stage('Deployment') {
-        if (TESTING_SUCCESSED) {
-            sh 'echo Deployment'
-        }
-    }
-    stage('Email') {
-        if (TESTING_SUCCESSED) {
-            sh 'echo Successed!'
-        }
-        else {
-            sh 'echo Failure!'
+        stage('Email') {
+            if (TESTING_SUCCESSED) {
+                sh 'echo Successed!'
+            }
+            else {
+                sh 'echo Failure!'
+            }
         }
     }
 }
