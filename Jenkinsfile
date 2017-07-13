@@ -61,7 +61,19 @@ pipeline {
                 // echo CUR_DATE=$(date +%Y-%m-%d) > env.properties
                 // echo env.CUR_DATE
                 // echo 'hello world!'
-                echo 'TBD'
+                // echo 'TBD'
+                try {
+                    def version = sh (
+                            script: "echo 1",
+                            returnStdout: true
+                    )
+                    println(version)
+                    if (version.toInteger() == 1) {
+                        same_version = true
+                    }
+                } catch (error) {
+                    // do nothing
+                }
             }
         }
         stage('end') {
