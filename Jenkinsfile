@@ -4,8 +4,10 @@ import groovy.json.JsonSlurper;
 
 
 node {
-    withEnv(['PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin']) {
+    
         stage('Checking Environment') {
+            PATH+WHATEVER='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
+            // withEnv(['PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin']) {
             // sh 'env'
             sh 'python3 --version'
             sh 'git --version'
@@ -59,7 +61,7 @@ node {
                 sh 'echo Failure!'
             }
         }
-    }
+    //}
 }
 
 
