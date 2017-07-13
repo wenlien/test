@@ -2,18 +2,15 @@
 import groovy.json.JsonSlurper;
 
 
-
 node {
-    
         stage('Checking Environment') {
-            PATH+WHATEVER='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
-            // withEnv(['PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin']) {
-            // sh 'env'
+            env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
             sh 'python3 --version'
             sh 'git --version'
             sh 'php --version'
         }
         state('test') {
+            env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
             sh 'env'
             sh 'python3 --version'
         }
@@ -21,6 +18,7 @@ node {
             juvo_config_replacement()
         }
         stage('Run Regression Testing') {
+            env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
             try {
                 parallel (
                         "Gating": {
@@ -66,6 +64,7 @@ node {
 
 
 def juvo_config_replacement() {
+    env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
     String juvo_config_path = '~/.juvoconfig';
     juvo_config_path = env.HOME + juvo_config_path.substring(1);
     sh 'cp ' + juvo_config_path + '.orig ' + juvo_config_path
