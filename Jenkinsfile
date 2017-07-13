@@ -18,12 +18,12 @@ pipeline {
                 sh 'python --version'
                 sh 'git --version'
                 script {
-                    def env.version = sh (
+                    version = sh (
                         script: "id",
                         returnStdout: true
                 )
                 }
-                echo env.version
+                echo version
             }
         }
         // stage('pull code') {
