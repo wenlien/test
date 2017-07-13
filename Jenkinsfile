@@ -5,6 +5,7 @@ env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
 
 node {
     stage('Checking Environment') {
+        sh 'env'
         sh 'python3 --version'
         sh 'git --version'
         sh 'php --version'
