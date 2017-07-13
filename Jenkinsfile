@@ -13,16 +13,22 @@ node {
     }
     stage('Run Regression Testing') {
         try {
-            parallel (Gating: {
-                // sh 'php ./DailyReport.php -m -p -e -l 3000 -b'
-                sh 'echo Gating'
+            parallel Gating: {
+                node('Gating') {
+                    // sh 'php ./DailyReport.php -m -p -e -l 3000 -b'
+                    sh 'echo Gating'
+                }
             },
             Gating-Candidate: {
-                sh 'echo Gating-Candidate'
+                node('Gating-Candidate') {
+                    sh 'echo Gating-Candidate'
+                }
             },
             Non-Gating: {
-                sh 'echo Non-Gating'
-            })
+                node('Non-Gating') {
+                    sh 'echo Non-Gating'
+                }
+            }
         }
         catch(error) {
             throw error
