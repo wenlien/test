@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 import groovy.json.JsonSlurper;
 
+env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
 
 node {
     stage('Checking Environment') {
