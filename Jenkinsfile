@@ -23,7 +23,7 @@ pipeline {
                         returnStdout: true
                 )
                 }
-                echo version
+                // echo version
             }
         }
         // stage('pull code') {
@@ -82,7 +82,7 @@ pipeline {
                 //     // do nothing
                 // }
                 // not working
-                echo 'hello...'
+                echo version
             }
         }
         stage('end') {
