@@ -16,6 +16,9 @@ node {
         }
         stage('Init Environment') {
             juvo_config_replacement()
+            script {
+                recipient = get_email()
+            }
         }
         stage('Run Regression Testing') {
             env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
@@ -54,9 +57,19 @@ node {
         stage('Email') {
             if (TESTING_SUCCESSED) {
                 sh 'echo Successed!'
+                mail subject: "${env.JOB_NAME} (${env.BUILD_NUMBER}) successed",
+                    body: "It appears that ${env.BUILD_URL} is failing, somebody should do something about that",
+                    to: recipient,
+                    replyTo: recipient,
+                    from: 'noreply@gmail.com'
             }
             else {
                 sh 'echo Failure!'
+                mail subject: "${env.JOB_NAME} (${env.BUILD_NUMBER}) failure",
+                    body: "It appears that ${env.BUILD_URL} is failing, somebody should do something about that",
+                    to: recipient,
+                    replyTo: recipient,
+                    from: 'noreply@gmail.com'
             }
         }
     //}
@@ -69,4 +82,14 @@ def juvo_config_replacement() {
     juvo_config_path = env.HOME + juvo_config_path.substring(1);
     sh 'cp ' + juvo_config_path + '.orig ' + juvo_config_path
     sh 'python -c \'import json; j=json.load(open("' + juvo_config_path +'", "r")); j["db"]["host"]="10.0.0.156"; json.dump(j, open("' + juvo_config_path + '", "w"), indent=True)\';'
+}
+
+def get_email() {
+    script {
+        email = sh (
+            script: "git log | grep Author | head -1 | cut -d'<' -f2 | cut -d'>' -f1",
+            returnStdout: true
+            )
+    }
+    return email
 }
