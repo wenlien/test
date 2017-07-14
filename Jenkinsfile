@@ -1,80 +1,121 @@
-#!/usr/bin/env groovy
-import groovy.json.JsonSlurper;
-
-
-node {
-        stage('Checking Environment') {
-            env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
-            sh 'python3 --version'
-            sh 'git --version'
-            sh 'php --version'
-        }
-        state('test') {
-            env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
-            sh 'env'
-            sh 'python3 --version'
-        }
-        stage('Init Environment') {
-            juvo_config_replacement()
-            script {
-                recipient = get_email()
+pipeline {
+    agent any
+    environment {
+        MY_HOME = '~/My_HOME'
+        PATH = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+        MY_STRING = 'hello world!'
+        EMAIL_TO = 'wenlien1001@gmail.com'
+        PASS_MESSAGE = 'Yay, we passed.'
+        FAIL_MESSAGE = 'Boo, we failed.'
+    }
+    stages {
+        stage('check environment') {
+            steps {
+                echo "${MY_STRING}"
+                echo "${MY_HOME}"
+                echo env.PATH
+                sh 'env'
+                sh 'python --version'
+                sh 'git --version'
+                script {
+                    version = sh (
+                        script: "id",
+                        returnStdout: true
+                )
+                    recipient = get_email()
+                }
+                // echo version
             }
         }
-        stage('Run Regression Testing') {
-            env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
-            try {
+        // stage('pull code') {
+        //    steps {
+        //        git url: 'git@github.com:wenlien/test.git'
+        //    }
+        // }
+        stage('retry-timeout') {
+            steps {
+                timeout(time: 3, unit: 'SECONDS') {
+                    retry (3) {
+                        sh 'sleep 1'
+                    }
+                }
+            }
+        }
+        stage('try-parallel') {
+            steps {
                 parallel (
-                        "Gating": {
-                            node('Gating') {
-                                // sh 'php ./DailyReport.php -m -p -e -l 3000 -b'
-                                sh 'echo Gating'
-                            }
-                        },
-                        "Gating-Candidate": {
-                            node('Gating-Candidate') {
-                                sh 'echo Gating-Candidate'
-                            }
-                        },
-                        "Non-Gating": {
-                            node('Non-Gating') {
-                                sh 'echo Non-Gating'
-                            }
-                        }
+                    linux: {
+                        echo 'linux'
+                        sh 'sleep 1'
+                    },
+                    mac: {
+                        echo 'mac'
+                        sh 'sleep 10'
+                    },
+                    windows: {
+                        echo 'windows'
+                        sh 'sleep 5'
+                    },
+                    failFast: false
                 )
             }
-            catch(error) {
-                throw error
-            }
-            finally {
-                TESTING_SUCCESSED = True
+        }
+        stage('get result from shell') {
+            steps {
+                // echo $(date '+%Y-%m-%d')
+                // s = sh (script:'date "+%Y-%m-%d"', returnStdout: true).trim()
+                // gitCommit = sh(returnStdout: true, script: 'git --help').trim()
+                // echo gitCommit
+                // echo CUR_DATE=$(date +%Y-%m-%d) > env.properties
+                // echo env.CUR_DATE
+                // echo 'hello world!'
+                // echo 'TBD'
+                // try {
+                //     def version = sh (
+                //             script: "echo 1",
+                //             returnStdout: true
+                //     )
+                //     println(version)
+                //     if (version.toInteger() == 1) {
+                //         same_version = true
+                //     }
+                // } catch (error) {
+                //     // do nothing
+                // }
+                // not working
+                echo version
             }
         }
-        stage('Deployment') {
-            if (TESTING_SUCCESSED) {
-                sh 'echo Deployment'
+        stage('end') {
+            steps {
+                echo 'end!'
             }
         }
-        stage('Email') {
-            if (TESTING_SUCCESSED) {
-                sh 'echo Successed!'
-                mail subject: "${env.JOB_NAME} (${env.BUILD_NUMBER}) successed",
-                    body: "It appears that ${env.BUILD_URL} is failing, somebody should do something about that",
-                    to: recipient,
-                    replyTo: recipient,
-                    from: 'noreply@gmail.com'
-            }
-            else {
-                sh 'echo Failure!'
-                mail subject: "${env.JOB_NAME} (${env.BUILD_NUMBER}) failure",
-                    body: "It appears that ${env.BUILD_URL} is failing, somebody should do something about that",
-                    to: recipient,
-                    replyTo: recipient,
-                    from: 'noreply@gmail.com'
-            }
+    }
+    post {
+        always() {
+            deleteDir()
         }
-    //}
+        success {
+            // mail to: env.EMAIL_TO, subject: "SUCCESS: ${currentBuild.fullDisplayName}", body: env.PASS_MESSAGE
+            echo env.PASS_MESSAGE
+            mail subject: "${env.JOB_NAME} (${env.BUILD_NUMBER}) successed",
+                body: "It appears that ${env.BUILD_URL} is failing, somebody should do something about that",
+                to: recipient,
+                replyTo: recipient,
+                from: 'noreply@gmail.com'
+        }
+        failure {
+            // mail to: env.EMAIL_TO, subject: "FAILURE: ${currentBuild.fullDisplayName}", body: env.FAIL_MESSAGE
+            echo env.FAIL_MESSAGE
+            mail subject: "${env.JOB_NAME} (${env.BUILD_NUMBER}) successed",
+                body: "It appears that ${env.BUILD_URL} is failing, somebody should do something about that",
+                to: recipient,
+                replyTo: recipient,
+                from: 'noreply@gmail.com'
+        }
+    }
 }
-
 
 def juvo_config_replacement() {
     env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
