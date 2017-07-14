@@ -22,6 +22,7 @@ pipeline {
                         script: "id",
                         returnStdout: true
                 )
+                    recipient = get_email()
                 }
                 // echo version
             }
@@ -98,10 +99,38 @@ pipeline {
         success {
             // mail to: env.EMAIL_TO, subject: "SUCCESS: ${currentBuild.fullDisplayName}", body: env.PASS_MESSAGE
             echo env.PASS_MESSAGE
+            mail subject: "${env.JOB_NAME} (${env.BUILD_NUMBER}) successed",
+                body: "It appears that ${env.BUILD_URL} is failing, somebody should do something about that",
+                to: recipient,
+                replyTo: recipient,
+                from: 'noreply@gmail.com'
         }
         failure {
             // mail to: env.EMAIL_TO, subject: "FAILURE: ${currentBuild.fullDisplayName}", body: env.FAIL_MESSAGE
             echo env.FAIL_MESSAGE
+            mail subject: "${env.JOB_NAME} (${env.BUILD_NUMBER}) successed",
+                body: "It appears that ${env.BUILD_URL} is failing, somebody should do something about that",
+                to: recipient,
+                replyTo: recipient,
+                from: 'noreply@gmail.com'
         }
     }
+}
+
+def juvo_config_replacement() {
+    env.PATH='/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin'
+    String juvo_config_path = '~/.juvoconfig';
+    juvo_config_path = env.HOME + juvo_config_path.substring(1);
+    sh 'cp ' + juvo_config_path + '.orig ' + juvo_config_path
+    sh 'python -c \'import json; j=json.load(open("' + juvo_config_path +'", "r")); j["db"]["host"]="10.0.0.156"; json.dump(j, open("' + juvo_config_path + '", "w"), indent=True)\';'
+}
+
+def get_email() {
+    script {
+        email = sh (
+            script: "git log | grep Author | head -1 | cut -d'<' -f2 | cut -d'>' -f1",
+            returnStdout: true
+            )
+    }
+    return email
 }
